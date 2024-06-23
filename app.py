@@ -10,9 +10,14 @@ app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 if not os.path.exists(UPLOAD_FOLDER):
     os.makedirs(UPLOAD_FOLDER)
 
+def list_files():
+    files = os.listdir(app.config['UPLOAD_FOLDER'])
+    return files
+
 @app.route('/')
 def index():
-    return render_template('index.html')
+    files = list_files()
+    return render_template('index.html', files=files)
 
 @app.route('/upload', methods=['POST'])
 def upload_file():
@@ -24,7 +29,7 @@ def upload_file():
     if file:
         filename = file.filename
         file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
-        return redirect(url_for('uploaded_file', filename=filename))
+        return redirect(url_for('index'))
 
 @app.route('/uploads/<filename>')
 def uploaded_file(filename):
