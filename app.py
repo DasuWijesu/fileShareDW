@@ -1,9 +1,8 @@
-from flask import Flask, request, redirect, url_for, render_template, send_from_directory
+from flask import Flask, request, redirect, url_for, render_template, send_from_directory, flash
 import os
 import logging
 
-# Configure logging level as needed
-logging.basicConfig(level=logging.DEBUG)
+logging.basicConfig(level=logging.DEBUG)  # Configure logging level as needed
 
 app = Flask(__name__)
 
@@ -31,17 +30,23 @@ def upload_file():
     if file.filename == '':
         return redirect(request.url)
     if file:
-        try:
-            filename = file.filename
-            file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
-            return redirect(url_for('index'))
-        except Exception as e:
-            logging.error('Failed to upload file: %s', e)
-            return 'Error uploading file', 500
+        filename = file.filename
+        file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+        return redirect(url_for('index'))
 
 @app.route('/uploads/<filename>')
 def uploaded_file(filename):
     return send_from_directory(app.config['UPLOAD_FOLDER'], filename)
+
+@app.route('/delete/<filename>', methods=['POST'])
+def delete_file(filename):
+    file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+    if os.path.exists(file_path):
+        os.remove(file_path)
+        flash('File {} deleted.'.format(filename), 'success')
+    else:
+        flash('File {} not found.'.format(filename), 'error')
+    return redirect(url_for('index'))
 
 @app.errorhandler(500)
 def server_error(e):
