@@ -3,25 +3,53 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <title>Upload File</title>
+    <title>File Storage App</title>
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
 </head>
 <body>
-    <h1>Upload new File</h1>
-    <form method="post" enctype="multipart/form-data" action="/upload">
-        <input type="file" name="file">
-        <input type="submit" value="Upload">
-    </form>
+    <div class="container mt-5">
+        <h1 class="mb-4">File Storage App</h1>
 
-    <h2>Uploaded Files:</h2>
-    <ul>
-        {% for file in files %}
-        <li>
-            <a href="{{ url_for('uploaded_file', filename=file) }}">{{ file }}</a>
-            <form action="{{ url_for('delete_file', filename=file) }}" method="post" style="display: inline;">
-                <button type="submit">Delete</button>
-            </form>
-        </li>
-        {% endfor %}
-    </ul>
+        <!-- File Upload Form -->
+        <form method="post" enctype="multipart/form-data" action="/upload">
+            <div class="form-group">
+                <input type="file" class="form-control-file" name="file">
+            </div>
+            <button type="submit" class="btn btn-primary">Upload File</button>
+        </form>
+
+        <hr>
+
+        <!-- Uploaded Files List -->
+        <h2>Uploaded Files:</h2>
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+                        {{ message }}
+                        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+        <ul class="list-group">
+            {% for file in files %}
+                <li class="list-group-item">
+                    <a href="{{ url_for('uploaded_file', filename=file) }}">{{ file }}</a>
+                    <form action="{{ url_for('delete_file', filename=file) }}" method="post" style="display: inline;">
+                        <button type="submit" class="btn btn-danger btn-sm ml-2">Delete</button>
+                    </form>
+                </li>
+            {% endfor %}
+        </ul>
+    </div>
+
+    <!-- Bootstrap JS and dependencies -->
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@1.16.1/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 </body>
 </html>
