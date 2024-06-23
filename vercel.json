@@ -2,12 +2,10 @@
     "version": 2,
     "builds": [
       
-        {"src": "api/server.py", "use": "@vercel/python"},
-        {"src": "tempaltes/**","use": "@vercel/static"}
+        {"src": "api/server.py", "use": "@vercel/python"}
       
     ],
     "routes": [
-      { "handle": "filesystem" },
       { "src": "/(.*)", "dest": "api/server.py" }
     ]
   }
