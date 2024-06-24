@@ -1,11 +1,7 @@
-from flask import Flask, request, redirect, url_for, render_template, send_from_directory, flash
+from flask import Flask, render_template, request, redirect, url_for, send_from_directory, abort
 import os
-import logging
 
 app = Flask(__name__)
-
-# Set the secret key to some random bytes. Keep this really secret!
-app.secret_key = b'_5#y2L"F4Q8z\n\xec]/'  # Replace with your own secret key
 
 # Set the folder to store uploaded files
 UPLOAD_FOLDER = 'uploads'
@@ -14,8 +10,7 @@ app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 if not os.path.exists(UPLOAD_FOLDER):
     os.makedirs(UPLOAD_FOLDER)
 
-logging.basicConfig(level=logging.DEBUG)  # Configure logging level as needed
-
+# Function to list files in the uploads folder
 def list_files():
     files = os.listdir(app.config['UPLOAD_FOLDER'])
     return files
@@ -25,20 +20,14 @@ def index():
     files = list_files()
     return render_template('index.html', files=files)
 
-@app.route('/upload', methods=['POST'])
+@app.route('/upload', methods=['GET', 'POST'])
 def upload_file():
-    if 'file' not in request.files:
-        flash('No file part', 'error')
-        return redirect(request.url)
-    file = request.files['file']
-    if file.filename == '':
-        flash('No selected file', 'error')
-        return redirect(request.url)
-    if file:
-        filename = file.filename
-        file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
-        flash('File uploaded successfully', 'success')
-        return redirect(url_for('index'))
+    if request.method == 'POST':
+        file = request.files['file']
+        if file:
+            file.save(os.path.join(app.config['UPLOAD_FOLDER'], file.filename))
+            return redirect(url_for('index'))
+    return render_template('upload.html')
 
 @app.route('/uploads/<filename>')
 def uploaded_file(filename):
@@ -46,22 +35,22 @@ def uploaded_file(filename):
 
 @app.route('/delete/<filename>', methods=['POST'])
 def delete_file(filename):
-    try:
-        file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
-        if os.path.exists(file_path):
-            os.remove(file_path)
-            flash('File {} deleted.'.format(filename), 'success')
-        else:
-            flash('File {} not found.'.format(filename), 'error')
-    except Exception as e:
-        logging.error('Error deleting file {}: {}'.format(filename, str(e)))
-        flash('Error deleting file {}: {}'.format(filename, str(e)), 'error')
+    filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+    if os.path.exists(filepath):
+        os.remove(filepath)
     return redirect(url_for('index'))
 
-@app.errorhandler(500)
-def server_error(e):
-    logging.error('An internal server error occurred: %s', e)
-    return 'Internal Server Error', 500
+@app.route('/metadata/<filename>')
+def view_metadata(filename):
+    filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+    if not os.path.exists(filepath):
+        abort(404)
+    
+    metadata = {
+        'filename': filename,
+        'size': os.path.getsize(filepath)
+    }
+    return render_template('metadata.html', metadata=metadata)
 
 if __name__ == '__main__':
-    app.run(debug=True, host='0.0.0.0')
+    app.run(host='0.0.0.0', port=5000, debug=True)  # Run the server on the local network
