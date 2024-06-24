@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <title>File List</title>
+</head>
+<body>
+    <div class="container mt-5">
+        <h1 class="mb-4">List of Files</h1>
+        <a href="{{ url_for('upload_file') }}" class="btn btn-primary mb-3">Upload a File</a>
+        <ul class="list-group">
+            {% for file in files %}
+            <li class="list-group-item">
+                <strong>Filename:</strong> {{ file }}<br>
+                <a href="{{ url_for('uploaded_file', filename=file) }}" class="btn btn-primary">Download File</a>
+                <a href="{{ url_for('view_metadata', filename=file) }}" class="btn btn-secondary">View Metadata</a>
+                <form action="{{ url_for('delete_file', filename=file) }}" method="post" class="d-inline">
+                    <button type="submit" class="btn btn-danger">Delete</button>
+                </form>
+            </li>
+            {% endfor %}
+        </ul>
+    </div>
+</body>
+</html>

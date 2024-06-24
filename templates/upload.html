@@ -8,10 +8,10 @@
 </head>
 <body>
     <div class="container mt-5">
-        <h1 class="mb-4">Upload File</h1>
+        <h1 class="mb-4">Upload a File</h1>
         <form action="{{ url_for('upload_file') }}" method="post" enctype="multipart/form-data">
             <div class="form-group">
-                <input type="file" name="file" class="form-control-file" required>
+                <input type="file" name="file" class="form-control">
             </div>
             <button type="submit" class="btn btn-primary">Upload</button>
         </form>
